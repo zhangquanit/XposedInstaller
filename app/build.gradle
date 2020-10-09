@@ -1,0 +1,92 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 27
+
+    defaultConfig {
+        applicationId "de.robv.android.xposed.installer"
+        minSdkVersion 15
+        targetSdkVersion 25
+        versionCode 43
+        versionName "3.1.5"
+        archivesBaseName = "XposedInstaller_${versionName}".replace(' ', '_')
+    }
+
+    //----------------------签名配置----------------------
+    signingConfigs {
+        debug {
+            //为了方便测试分享或第三方登录  使用正式签名
+            storeFile file('../buildsystem/keystore.jks')
+            storePassword '123456'
+            keyAlias 'key0'
+            keyPassword '123456'
+        }
+        release {
+            storeFile file('../buildsystem/keystore.jks')
+            storePassword '123456'
+            keyAlias 'key0'
+            keyPassword '123456'
+            v2SigningEnabled false
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            pseudoLocalesEnabled true
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+
+    packagingOptions {
+        exclude 'LICENSE.txt'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+    }
+
+    lintOptions {
+        quiet true
+        abortOnError false
+        ignoreWarnings true
+        disable 'InvalidPackage'            //Some libraries have issues with this.
+        disable 'OldTargetApi'
+        //Lint gives this warning but SDK 20 would be Android L Beta.
+        disable 'IconDensities'             //For testing purpose. This is safe to remove.
+        disable 'IconMissingDensityFolder'  //For testing purpose. This is safe to remove.
+    }
+}
+
+dependencies {
+    implementation 'com.android.support:cardview-v7:27.0.2'
+    implementation 'com.android.support:design:27.0.2'
+    implementation 'com.android.support:customtabs:27.0.2'
+    implementation 'com.android.support:support-v13:27.0.2'
+    implementation 'com.afollestad.material-dialogs:commons:0.9.0.2'
+    implementation 'se.emilsjolander:stickylistheaders:2.7.0'
+    implementation 'eu.chainfire:libsuperuser:1.0.0.201608240809'
+    implementation 'com.squareup.picasso:picasso:2.5.2'
+    implementation 'de.psdev.licensesdialog:licensesdialog:1.8.1'
+    compileOnly fileTree(dir: 'libs', include: ['*.jar'])
+}
